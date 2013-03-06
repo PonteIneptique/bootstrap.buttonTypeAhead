@@ -35,6 +35,15 @@ $(el).btnTypeAhead({
 ```
 
 Default value will basically call url given through **input data-target="here"** and will give a range of offers. It will read a json object **[{id : "DATA", text: "DATA"}, etc. ]**
+ + data-id-equivalent : **Change aValue**
+ + data-text-equivalent : **Change aText Value**
+ + data-listStyle-equivalent : **change listStyle** ( selected results ul class)
+ + data-btnStyle-equivalent : **change btnClass** ( selected results span class)
+ + data-single-equivalent : **change single** Only one way for now, adding this attr will get single as true. No false way for now
+
+##Attr Value
+You can change value without going through javascript initial object. Available attr are :
+
 
 ##Preview // Screenshot
 ![Alt text](/mdFiles/preview.png "Screenshot")
