@@ -10,15 +10,15 @@
 				target : 'data-target', //Input Attr of Url Ajax Read json file
 				aValue : 'id', // Attr used to retrieve id value on JSON Ajax Object
 				aText : 'text', // Attr used to retrieve text value on JSON Ajax Object,
-				query: 'queryz', // Get Parameters
+				textParser:false, // false or function call back to use on json[][aText]
+				query: 'query', // Get Parameters
 				method : 'POST', // Method used to send input value
-				StartOn : 5, // Minimum length to trigger ajax call,
+				StartOn : 3, // Minimum length to trigger ajax call,
 				Save: false, // Enter send a prevent form post and post value to same or to saveUrl,
 				saveUrl: 'data-save', //Input Attr of Url Ajax Write Json File, must use same key than trget file 
 				timeBetween: 120, // Time between to save post,
-				autoList: true, // Not used at the moment
 				btnClass : 'btn btn-infos', // Class of your button
-				listStyle:'unstyled', // Selected value list style
+				listStyle: 'inline', // Selected value list style
 				btnStyle:'btn btn-primary', //Style of span used to show text value and hidden input with id value
 				saveSentence : 'Type enter to save your value', // Default sentence when saving is true and no results are given
 				single: false // Single choice or multiple choice
@@ -26,7 +26,7 @@
 			,options);
 				
 		var that = this;
-		var lastPost = 0;//$.now();
+		var lastPost = parseInt($.now()) - timeBetween;
 		var uid = 0;
 		
 		that.each(function() {
@@ -38,7 +38,11 @@
 			var inLeft = parseInt(position.left);
 			var height = parseInt(input.outerHeight());
 			var top = inTop + height;
-			var name = 'a-'+input.attr('name');
+			
+			//Save name and erase it 
+			input.attr('data-name', input.attr('name'));
+			input.removeAttr('name');
+			var name = input.attr('data-name');
 			++uid;
 			
 			//Give infos to input
@@ -98,7 +102,7 @@
 			}
 			
 			//Creating new DOM Elements : List of results && list of selected option
-			var $aheadlist = $('<ul class="btnTypeAhead-ul btnTypeAhead-ul-'+uid+' typeahead dropdown-menu" uid="'+uid+'" style="display: none; width:'+input.outerWidth()+'px; top: '+top+'px; left:'+position.left+'px;"/>');
+			var $aheadlist = $('<ul class="btnTypeAhead-ul btnTypeAhead-ul-'+uid+' typeahead dropdown-menu" uid="'+uid+'" style="display: none; min-width:'+input.outerWidth()+'px; top: '+top+'px; left:'+position.left+'px;"/>');
 			if(input.parent().hasClass('input-prepend'))
 			{
 				input.parent().after($aheadlist);
@@ -137,9 +141,17 @@
 							}).done(function(data) {
 								//After Ajax auery success
 								ul.hide();
+								
+								//Get the callback parser if setted	
+								if (typeof settings.textParser == 'function') {								
+									data[text] = settings.textParser(data[text]);
+								}
+									
+								
 								if(single === false)
 								{
-									div.append('<li><span class="'+btnStyle+'"><input type="hidden" class="'+name+'" name="'+name+'[]" value="'+data[id]+'" /> '+data[text]+' <i class="icon-remove"></i></span></li>');
+									div.append('<li class="btnTypeAhead-li btnTypeAhead-li-'+uid+'"><span class="'+btnStyle+'"><input type="hidden" class="'+name+'" name="'+name+'[]" value="'+data[id]+'" /> '+data[text]+' <i class="icon-remove"></i></span></li>');
+									input.val('')
 								}
 								else
 								{
@@ -190,7 +202,7 @@
 							ul.find('li').remove();
 							
 							$.each( data, function( key, value ) {
-								if($('.a-'+input.attr('name')+'[value="'+value[id]+'"]').length == 0)
+								if($('.'+input.attr('data-name')+'[value="'+value[id]+'"]').length == 0)
 								{
 									// alert(value.uid_feature);
 									ul.append('<li><a href="#" class="btnTypeAhead-href btnTypeAhead-href-'+uid+'" data-value="'+value[id]+'">'+value[text]+'</a></li>');
@@ -250,6 +262,7 @@
 					ul.toggle();
 				}
 			});
+			
 		});
 		
 		$(document).on('click', '.btnTypeAhead-href', function(e) {
@@ -260,17 +273,22 @@
 			input = $('input.btnTypeAhead-input-'+uid);
 			href.parent('li').remove();
 			
-			name = 'a-'+input.attr('name');
+			if (typeof settings.textParser == 'function') {								
+				text = settings.textParser(href.text());
+			}
+
+			name = input.attr('data-name');
 			if(input.attr('data-single-equivalent') === "false")
 			{
-				$('.btnTypeAhead-selected-'+uid).append('<li class="btnTypeAhead-li btnTypeAhead-li-'+uid+'"><span class="'+input.attr('data-btnStyle-equivalent')+'"><input type="hidden" class="'+name+'" name="'+name+'[]" value="'+href.attr('data-value')+'" /> '+href.text()+' <i class="icon-remove"></i></span></li>');
+				
+				$('.btnTypeAhead-selected-'+uid).append('<li class="btnTypeAhead-li btnTypeAhead-li-'+uid+'"><span class="'+input.attr('data-btnStyle-equivalent')+'"><input type="hidden" class="'+name+'" name="'+name+'[]" value="'+href.attr('data-value')+'" /> '+text+' <i class="icon-remove"></i></span></li>');
 			}
 			else
 			{
 				if(input.parent('.input-prepend').length == 1)
 				{
 					input.parent('.input-prepend').addClass('input-append');
-					input.attr('disabled', 'disabled').val(href.text()).after('<span class="add-on btnTypeAhead-add-on"><i class="icon-remove"></i></span>');
+					input.attr('disabled', 'disabled').val(text).after('<span class="add-on btnTypeAhead-add-on"><i class="icon-remove"></i></span>');
 					$('.btnTypeAhead-selected-'+uid).append('<input type="hidden" class="'+name+'" name="'+name+'" value="'+href.attr('data-value')+'" />');
 				}
 				else
@@ -292,7 +310,7 @@
 			//Collecting dom objects
 			addon = $(this).parent();
 			input = addon.prev('input');
-			name = 'a-'+input.attr('name');
+			name = input.attr('data-name');
 			
 			//Reenable
 			input.attr('disabled', false);

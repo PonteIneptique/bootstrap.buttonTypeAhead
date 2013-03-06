@@ -1,7 +1,7 @@
 #buttonTypeAhead
 =========================
 
-  > As I'm still improving the plugin, the ReadMe is still quite empty. Don't be affraid to aske me anything through [twitter](https://twitter.com/PonteIneptique). 
+  > As I'm still improving the plugin, the ReadMe is still quite empty. Don't be affraid to aske me anything through [Twitter](https://twitter.com/PonteIneptique). 
   > This plugin has been developed by Thibault Clerice for Kings College of London eCerch
 	
 	
@@ -19,27 +19,22 @@ $(el).btnTypeAhead({
 	target : 'data-target', //Input Attr of Url Ajax Read json file
 	aValue : 'id', // Attr used to retrieve id value on JSON Ajax Object
 	aText : 'text', // Attr used to retrieve text value on JSON Ajax Object,
-	query: 'queryz', // Get Parameters
+	textParser:false, // false or function call back to use on json[][aText]
+	query: 'query', // Get Parameters
 	method : 'POST', // Method used to send input value
-	StartOn : 5, // Minimum length to trigger ajax call,
+	StartOn : 3, // Minimum length to trigger ajax call,
 	Save: false, // Enter send a prevent form post and post value to same or to saveUrl,
 	saveUrl: 'data-save', //Input Attr of Url Ajax Write Json File, must use same key than trget file 
 	timeBetween: 120, // Time between to save post,
-	autoList: true, // Not used at the moment
 	btnClass : 'btn btn-infos', // Class of your button
-	listStyle:'unstyled', // Selected value list style
+	listStyle: 'inline', // Selected value list style
 	btnStyle:'btn btn-primary', //Style of span used to show text value and hidden input with id value
 	saveSentence : 'Type enter to save your value', // Default sentence when saving is true and no results are given
 	single: false // Single choice or multiple choice
-<<<<<<< HEAD
 	});
-=======
-});
 ```
 
 Default value will basically call url given through **<input data-target="here" />** and will give a range of offers. It will read a json object **[{id : "DATA", text: "DATA"}, etc. ]**
 
-##Preview
-=======
 ##Preview // Screenshot
 ![Alt text](/mdFiles/preview.png "Screenshot")
