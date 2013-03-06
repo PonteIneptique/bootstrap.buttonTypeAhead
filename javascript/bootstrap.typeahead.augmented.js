@@ -11,10 +11,10 @@
 				aValue : 'id', // Attr used to retrieve id value on JSON Ajax Object
 				aText : 'text', // Attr used to retrieve text value on JSON Ajax Object,
 				textParser:false, // false or function call back
-				query: 'queryz', // Get Parameters
+				query: 'query', // Get Parameters
 				method : 'POST', // Method used to send input value
 				StartOn : 3, // Minimum length to trigger ajax call,
-				Save: true, // Enter send a prevent form post and post value to same or to saveUrl,
+				Save: false, // Enter send a prevent form post and post value to same or to saveUrl,
 				saveUrl: 'data-save', //Input Attr of Url Ajax Write Json File, must use same key than trget file 
 				timeBetween: 120, // Time between to save post,
 				btnClass : 'btn btn-infos', // Class of your button
@@ -43,9 +43,9 @@
 			input.removeAttr('name');
 			var name = input.attr('data-name');
 			var uid = name;
-			//input.data("settings") improvments
-			input.data("settings", options);
-			input.data("settings", "uid", name);
+			//input.data("BTA-Settings") improvments
+			input.data("BTA-Settings", options);
+			input.data("BTA-Settings", $.extend({ uid : name}, input.data("BTA-Settings")));
 			
 			//Give infos to input
 			input.addClass('btnTypeAhead-input-'+name);
@@ -53,32 +53,31 @@
 			//Search attr for id field on json object
 			if(input.attr('data-id-equivalent'))
 			{
-			$.extend({ aValue : input.attr('data-id-equivalent')}, input.data("settings"));
-				input.data("settings", $.extend({ aValue : input.attr('data-id-equivalent')}, input.data("settings")));
+				input.data("BTA-Settings", $.extend(input.data("BTA-Settings"), { aValue : input.attr('data-id-equivalent')}));
 			}
 			
 			//Search attr for text field on json object
 			if(input.attr('data-text-equivalent'))
 			{
-				input.data("settings", $.extend({  aText : input.attr('data-text-equivalent') }, input.data("settings")));
+				input.data("BTA-Settings", $.extend(input.data("BTA-Settings"), {  aText : input.attr('data-text-equivalent') }));
 			}
 						
 			//Search attr for list Style overing default
 			if(input.attr('data-listStyle-equivalent'))
 			{
-				input.data("settings",$.extend({ listStyle  :  input.attr('data-listStyle-equivalent') }, input.data("settings")));
+				input.data("BTA-Settings",$.extend(input.data("BTA-Settings"), { listStyle  :  input.attr('data-listStyle-equivalent') }));
 			}
 			
 			//Search attr for btn Style overing default
 			if(input.attr('data-btnStyle-equivalent'))
 			{
-				input.data("settings", $.extend({  btnStyle  :  input.attr('data-btnStyle-equivalent') }, input.data("settings")));
+				input.data("BTA-Settings", $.extend(input.data("BTA-Settings"), {  btnStyle  :  input.attr('data-btnStyle-equivalent') }));
 			}
 			
 			//Search attr for single Style overing default
 			if(input.attr('data-single-equivalent'))
 			{
-				input.data("settings", $.extend({ single : true }, input.data("settings")));
+				input.data("BTA-Settings", $.extend(input.data("BTA-Settings"), { single : true }));
 			}
 			
 			//Creating new DOM Elements : List of results && list of selected option
@@ -94,28 +93,29 @@
 				var ul = input.next('ul');
 			}
 			
-			var $buttonlist = $('<ul class="btnTypeAhead-selected btnTypeAhead-selected-'+uid+' '+input.data("settings").listStyle+'" uid="'+uid+'" style="margin-top:5px;" />');
+			var $buttonlist = $('<ul class="btnTypeAhead-selected btnTypeAhead-selected-'+uid+' '+input.data("BTA-Settings").listStyle+'" uid="'+uid+'" style="margin-top:5px;" />');
 			ul.after($buttonlist);
 			var div = ul.next('ul');
 			
 			//Saving option
-			if(input.data("settings").Save == true)
+			if(input.data("BTA-Settings").Save == true)
 			{
 				input.keypress(function(e){
+					var input = $(this);
 					if( e.which == 13 )
 					{
 						e.preventDefault();
 						
 						//Set query
 						query = {  };
-						query[input.data("settings").query] = input.val();
+						query[input.data("BTA-Settings").query] = input.val();
 						
 						//Check time difference
-						if(($.now() - lastPost) > input.data("settings").timeBetween)
+						if(($.now() - lastPost) > input.data("BTA-Settings").timeBetween)
 						{
 							$.ajax({
-								method :input.data("settings").method,
-								url: input.attr(input.data("settings").saveUrl),
+								method :input.data("BTA-Settings").method,
+								url: input.attr(input.data("BTA-Settings").saveUrl),
 								data: query,
 								dataType: 'json'
 							}).done(function(data) {
@@ -123,14 +123,14 @@
 								ul.hide();
 								
 								//Get the callback parser if setted	
-								if (typeof input.data("settings").textParser == 'function') {								
-									data[input.data("settings").aText] = input.data("settings").textParser(data[input.data("settings").aText]);
+								if (typeof input.data("BTA-Settings").textParser == 'function') {								
+									data[input.data("BTA-Settings").aText] = input.data("BTA-Settings").textParser(data[input.data("BTA-Settings").aText]);
 								}
 									
 								
-								if(input.data("settings").single === false)
+								if(input.data("BTA-Settings").single === false)
 								{
-									div.append('<li class="btnTypeAhead-li btnTypeAhead-li-'+uid+'"><span class="'+input.data("settings").btnStyle+'"><input type="hidden" class="'+name+'" name="'+name+'[]" value="'+data[input.data("settings").aValue]+'" /> '+data[input.data("settings").aText]+' <i class="icon-remove"></i></span></li>');
+									div.append('<li class="btnTypeAhead-li btnTypeAhead-li-'+uid+'"><span class="'+input.data("BTA-Settings").btnStyle+'"><input type="hidden" class="'+name+'" name="'+name+'[]" value="'+data[input.data("BTA-Settings").aValue]+'" /> '+data[input.data("BTA-Settings").aText]+' <i class="icon-remove"></i></span></li>');
 									input.val('')
 								}
 								else
@@ -138,8 +138,8 @@
 									if(input.parent('.input-prepend').length == 1)
 									{
 										input.parent('.input-prepend').addClass('input-append');
-										input.attr('disabled', 'disabled').val(data[input.data("settings").aText]).after('<span class="add-on btnTypeAhead-add-on"><i class="icon-remove"></i></span>');
-										$('.btnTypeAhead-selected-'+uid).append('<input type="hidden" class="'+name+'" name="'+name+'" value="'+data[input.data("settings").aValue]+'" />');
+										input.attr('disabled', 'disabled').val(data[input.data("BTA-Settings").aText]).after('<span class="add-on btnTypeAhead-add-on"><i class="icon-remove"></i></span>');
+										$('.btnTypeAhead-selected-'+uid).append('<input type="hidden" class="'+name+'" name="'+name+'" value="'+data[input.data("BTA-Settings").aValue]+'" />');
 									}
 									else
 									{
@@ -157,9 +157,8 @@
 			
 			//Key Up Event
 			input.keyup(function(e) {
-				input = $(this);
-				
-				if((input.data("settings").Save == true) && (e.which == 13 ))
+				var input = $(this);
+				if((input.data("BTA-Settings").Save == true) && (e.which == 13 ))
 				{
 					return false;
 				}
@@ -169,13 +168,13 @@
 					//<--
 					// Query Data
 					query = {  };
-					query[input.data("settings").query] = input.val();
+					query[input.data("BTA-Settings").query] = input.val();
 					//->
-					if(input.val().length >= input.data("settings").StartOn)
+					if(input.val().length >= input.data("BTA-Settings").StartOn)
 					{
 						$.ajax({
-							method :input.data("settings").method,
-							url: input.attr(input.data("settings").target),
+							method :input.data("BTA-Settings").method,
+							url: input.attr(input.data("BTA-Settings").target),
 							data: query,
 							dataType: 'json'
 						}).done(function(data) {
@@ -183,15 +182,16 @@
 							ul.find('li').remove();
 							
 							$.each( data, function( key, value ) {
-								if($('.'+input.attr('data-name')+'[value="'+value[input.data("settings").aValue]+'"]').length == 0)
+								if($('.'+input.attr('data-name')+'[value="'+value[input.data("BTA-Settings").aValue]+'"]').length == 0)
 								{
-									ul.append('<li><a href="#" class="btnTypeAhead-href btnTypeAhead-href-'+uid+'" data-value="'+value[input.data("settings").aValue]+'">'+value[input.data("settings").aText]+'</a></li>');
+									var li = ul.append('<li><a href="#" class="btnTypeAhead-href btnTypeAhead-href-'+uid+'" data-value="'+value[input.data("BTA-Settings").aValue]+'">'+value[input.data("BTA-Settings").aText]+'</a></li>');
+									li.data("BTA-Settings", { input : input });
 								}
 							});
 							
-							if((ul.find('li').length == 0 ) && (input.data("settings").Save == true))
+							if((ul.find('li').length == 0 ) && (input.data("BTA-Settings").Save == true))
 							{
-								ul.append('<li>'+input.data("settings").saveSentence+'</li>');
+								ul.append('<li>'+input.data("BTA-Settings").saveSentence+'</li>');
 							}
 							
 							//Check LEFT && TOP
@@ -220,10 +220,10 @@
 			});
 			
 			input.click(function() {
-				if(ul.find('li').length > 0 && (input.data("settings").single === false) && input.val().length > input.data("settings").StartOn)
+				if(ul.find('li').length > 0 && (input.data("BTA-Settings").single === false) && input.val().length > input.data("BTA-Settings").StartOn)
 				{
 					//Check LEFT && TOP
-					temppos = input.position();
+					var temppos = input.position();
 					if(inTop != parseInt(temppos.top))
 					{
 						var inTop = parseInt(temppos.top);
@@ -243,26 +243,26 @@
 				}
 			});
 			
-			$(document).on('click', '.btnTypeAhead-href-'+input.data("settings").uid, function(e) {
+			$(document).on('click', '.btnTypeAhead-href-'+input.data("BTA-Settings").uid, function(e, input) {
 				e.preventDefault();
-				href = $(this);
-				ul = href.parents('.btnTypeAhead-ul');
+				var href = $(this);
+				var ul = href.parents('.btnTypeAhead-ul');
 				
-				input = input.data("settings").input;
+				var input = ul.data("BTA-Settings").input;
 				
 				href.parent('li').remove();
 				
-				text = href.text();
+				var text = href.text();
 				
-				if (typeof input.data("settings").textParser == 'function') {								
-					text = input.data("settings").textParser(text);
+				if (typeof input.data("BTA-Settings").textParser == 'function') {								
+					text = input.data("BTA-Settings").textParser(text);
 				}
 
-				name = input.attr('data-name');
-				if(input.data("settings").single == false)
+				var name = input.attr('data-name');
+				if(input.data("BTA-Settings").single == false)
 				{
 					
-					$('.btnTypeAhead-selected-'+uid).append('<li class="btnTypeAhead-li btnTypeAhead-li-'+input.data("settings").uid+'"><span class="'+input.data("settings").btnStyle+'"><input type="hidden" class="'+name+'" name="'+name+'[]" value="'+href.attr('data-value')+'" /> '+text+' <i class="icon-remove"></i></span></li>');
+					$('.btnTypeAhead-selected-'+uid).append('<li class="btnTypeAhead-li btnTypeAhead-li-'+input.data("BTA-Settings").uid+'"><span class="'+input.data("BTA-Settings").btnStyle+'"><input type="hidden" class="'+name+'" name="'+name+'[]" value="'+href.attr('data-value')+'" /> '+text+' <i class="icon-remove"></i></span></li>');
 				}
 				else
 				{
@@ -282,18 +282,20 @@
 				return false;
 			});
 			 
-			$(document).on('click', '.btnTypeAhead-li-'+input.data("settings").uid+' .icon-remove', function() {
+			$(document).on('click', '.btnTypeAhead-li-'+input.data("BTA-Settings").uid+' .icon-remove', function() {
 				$(this).parents('.btnTypeAhead-li').remove();
 				return true;
 			});
+			
+			// alert(input.data("BTA-Settings").StartOn);
 		});
 		
 		
 		$(document).on('click', '.btnTypeAhead-add-on .icon-remove', function() {
 			//Collecting dom objects
-			addon = $(this).parent();
-			input = addon.prev('input');
-			name = input.attr('data-name');
+			var addon = $(this).parent();
+			var input = addon.prev('input');
+			var name = input.attr('data-name');
 			
 			//Reenable
 			input.attr('disabled', false);
