@@ -34,7 +34,7 @@ $(el).btnTypeAhead({
 	});
 ```
 
-Default value will basically call url given through **<input data-target="here" />** and will give a range of offers. It will read a json object **[{id : "DATA", text: "DATA"}, etc. ]**
+Default value will basically call url given through **input data-target="here"** and will give a range of offers. It will read a json object **[{id : "DATA", text: "DATA"}, etc. ]**
 
 ##Preview // Screenshot
 ![Alt text](/mdFiles/preview.png "Screenshot")
