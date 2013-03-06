@@ -35,6 +35,8 @@ $(el).btnTypeAhead({
 ```
 
 Default value will basically call url given through **input data-target="here"** and will give a range of offers. It will read a json object **[{id : "DATA", text: "DATA"}, etc. ]**
+
+##Changing value through html
  + data-id-equivalent : **Change aValue**
  + data-text-equivalent : **Change aText Value**
  + data-listStyle-equivalent : **change listStyle** ( selected results ul class)
