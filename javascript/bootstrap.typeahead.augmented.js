@@ -3,23 +3,25 @@
 	$.fn.hasAttr = function(name) {  
 	   return this.attr(name) !== undefined;
 	};
-	//-->
+	// -->
+	
 	$.fn.btnTypeAhead = function(options){
 		var settings = $.extend({
-				target : 'data-target', //Attr of Url Ajax Target
+				target : 'data-target', //Input Attr of Url Ajax Read json file
 				aValue : 'id', // Attr used to retrieve id value on JSON Ajax Object
 				aText : 'text', // Attr used to retrieve text value on JSON Ajax Object,
 				query: 'queryz', // Get Parameters
 				method : 'POST', // Method used to send input value
 				StartOn : 5, // Minimum length to trigger ajax call,
-				Save: true, // Enter send a prevent form post and post value to same or to saveUrl,
-				saveUrl: 'data-save',
+				Save: false, // Enter send a prevent form post and post value to same or to saveUrl,
+				saveUrl: 'data-save', //Input Attr of Url Ajax Write Json File, must use same key than trget file 
 				timeBetween: 120, // Time between to save post,
-				autoList: true,
-				btnClass : 'btn btn-infos',
-				listStyle:'unstyled',
-				btnStyle:'btn btn-primary',
-				saveSentence : 'Type enter to save your value'
+				autoList: true, // Not used at the moment
+				btnClass : 'btn btn-infos', // Class of your button
+				listStyle:'unstyled', // Selected value list style
+				btnStyle:'btn btn-primary', //Style of span used to show text value and hidden input with id value
+				saveSentence : 'Type enter to save your value', // Default sentence when saving is true and no results are given
+				single: false // Single choice or multiple choice
 			}
 			,options);
 				
@@ -64,7 +66,7 @@
 			}
 						
 			//Search attr for list Style overing default
-			if(input.hasAttr('data-listStyle-equivalent'))
+			if(input.attr('data-listStyle-equivalent'))
 			{
 				var listStyle = input.attr('data-listStyle-equivalent');
 			}
@@ -74,7 +76,7 @@
 			}
 			
 			//Search attr for btn Style overing default
-			if(input.hasAttr('data-btnStyle-equivalent'))
+			if(input.attr('data-btnStyle-equivalent'))
 			{
 				var btnStyle = input.attr('data-btnStyle-equivalent');
 			}
@@ -82,6 +84,17 @@
 			{
 				var btnStyle = settings.btnStyle;
 				input.attr('data-btnStyle-equivalent', btnStyle);
+			}
+			
+			//Search attr for single Style overing default
+			if(input.attr('data-single-equivalent'))
+			{
+				var single = input.attr('data-single-equivalent');
+			}
+			else
+			{
+				var single = settings.single;
+				input.attr('data-single-equivalent', single);
 			}
 			
 			//Creating new DOM Elements : List of results && list of selected option
@@ -122,8 +135,26 @@
 								data: query,
 								dataType: 'json'
 							}).done(function(data) {
+								//After Ajax auery success
 								ul.hide();
-								div.append('<li><span class="'+btnStyle+'"><input type="hidden" class="'+name+'" name="'+name+'[]" value="'+data[id]+'" /> '+data[text]+' <i class="icon-remove"></i></span></li>');
+								if(single === false)
+								{
+									div.append('<li><span class="'+btnStyle+'"><input type="hidden" class="'+name+'" name="'+name+'[]" value="'+data[id]+'" /> '+data[text]+' <i class="icon-remove"></i></span></li>');
+								}
+								else
+								{
+									if(input.parent('.input-prepend').length == 1)
+									{
+										input.parent('.input-prepend').addClass('input-append');
+										input.attr('disabled', 'disabled').val(data[text]).after('<span class="add-on btnTypeAhead-add-on"><i class="icon-remove"></i></span>');
+										$('.btnTypeAhead-selected-'+uid).append('<input type="hidden" class="'+name+'" name="'+name+'" value="'+data[id]+'" />');
+									}
+									else
+									{
+										//Will see later
+									}
+								}
+								
 							});
 							
 						}
@@ -197,7 +228,7 @@
 			});
 			
 			input.click(function() {
-				if(ul.find('li').length > 0 )
+				if(ul.find('li').length > 0 && (single === false))
 				{
 					//Check LEFT && TOP
 					temppos = input.position();
@@ -230,16 +261,44 @@
 			href.parent('li').remove();
 			
 			name = 'a-'+input.attr('name');
-			
-			ul.next('.btnTypeAhead-selected').append('<li class="btnTypeAhead-li btnTypeAhead-li-'+uid+'"><span class="'+input.attr('data-btnStyle-equivalent')+'"><input type="hidden" class="'+name+'" name="'+name+'[]" value="'+href.attr('data-value')+'" /> '+href.text()+' <i class="icon-remove"></i></span></li>');
-			
+			if(input.attr('data-single-equivalent') === "false")
+			{
+				$('.btnTypeAhead-selected-'+uid).append('<li class="btnTypeAhead-li btnTypeAhead-li-'+uid+'"><span class="'+input.attr('data-btnStyle-equivalent')+'"><input type="hidden" class="'+name+'" name="'+name+'[]" value="'+href.attr('data-value')+'" /> '+href.text()+' <i class="icon-remove"></i></span></li>');
+			}
+			else
+			{
+				if(input.parent('.input-prepend').length == 1)
+				{
+					input.parent('.input-prepend').addClass('input-append');
+					input.attr('disabled', 'disabled').val(href.text()).after('<span class="add-on btnTypeAhead-add-on"><i class="icon-remove"></i></span>');
+					$('.btnTypeAhead-selected-'+uid).append('<input type="hidden" class="'+name+'" name="'+name+'" value="'+href.attr('data-value')+'" />');
+				}
+				else
+				{
+					//Will see later
+				}
+			}
 			ul.hide();
 			
 			return false;
 		});
-		
+		 
 		$(document).on('click', '.btnTypeAhead-li .icon-remove', function() {
 			$(this).parents('.btnTypeAhead-li').remove();
+			return true;
+		});
+		
+		$(document).on('click', '.btnTypeAhead-add-on .icon-remove', function() {
+			//Collecting dom objects
+			addon = $(this).parent();
+			input = addon.prev('input');
+			name = 'a-'+input.attr('name');
+			
+			//Reenable
+			input.attr('disabled', false);
+			addon.remove();//Remove cross
+			$('input[name="'+name+'"]').remove();//Remove hidden
+			
 			return true;
 		});
 	

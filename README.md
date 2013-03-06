@@ -31,9 +31,18 @@ $(el).btnTypeAhead({
 	btnStyle:'btn btn-primary', //Style of span used to show text value and hidden input with id value
 	saveSentence : 'Type enter to save your value', // Default sentence when saving is true and no results are given
 	single: false // Single choice or multiple choice
+<<<<<<< HEAD
 	});
+=======
+});
+>>>>>>> Readme Commit and update js
 ```
 
 Default value will basically call url given through **<input data-target="here" />** and will give a range of offers. It will read a json object **[{id : "DATA", text: "DATA"}, etc. ]**
 
+<<<<<<< HEAD
 ##Preview
+=======
+##Preview // Screenshot
+![Alt text](/mdFiles/preview.png "Screenshot")
+>>>>>>> Readme Commit and update js
