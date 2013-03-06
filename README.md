@@ -45,4 +45,3 @@ Default value will basically call url given through **<input data-target="here" 
 =======
 ##Preview // Screenshot
 ![Alt text](/mdFiles/preview.png "Screenshot")
->>>>>>> Readme Commit and update js
