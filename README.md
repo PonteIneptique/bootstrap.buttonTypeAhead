@@ -35,12 +35,10 @@ $(el).btnTypeAhead({
 	});
 =======
 });
->>>>>>> Readme Commit and update js
 ```
 
 Default value will basically call url given through **<input data-target="here" />** and will give a range of offers. It will read a json object **[{id : "DATA", text: "DATA"}, etc. ]**
 
-<<<<<<< HEAD
 ##Preview
 =======
 ##Preview // Screenshot
